@@ -30,7 +30,6 @@ export class ProductsComponent implements OnInit {
     stock: [0, [Validators.required, Validators.min(0), Validators.max(1000000)]],
     min_stock: [0, [Validators.required, Validators.min(0), Validators.max(1000000)]],
   });
-
   ngOnInit(): void { this.load(); }
 
   load(): void {
@@ -59,11 +58,30 @@ export class ProductsComponent implements OnInit {
     this.modalOpen = true;
   }
 
+  // Return void: a false return value in an Angular click handler cancels
+  // the default action of the submit button inside the modal.
+  onBackdropClick(event: MouseEvent): void {
+    if (event.target === event.currentTarget && !this.loading) {
+      this.modalOpen = false;
+    }
+  }
+
   save(): void {
-    if (this.form.invalid || this.loading) {
-      this.form.markAllAsTouched();
+    if (this.loading) {
       return;
     }
+
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.error = 'Revisa los campos obligatorios del formulario.';
+      for (const [field, control] of Object.entries(this.form.controls)) {
+        if (control.invalid) {
+          console.warn('Campo inválido:', field, Object.keys(control.errors ?? {}));
+        }
+      }
+      return;
+    }
+
     const raw = this.form.getRawValue();
     const payload: ProductPayload = {
       ...raw,
@@ -85,6 +103,7 @@ export class ProductsComponent implements OnInit {
       error: (error: unknown) => {
         this.loading = false;
         this.error = apiErrorMessage(error);
+        console.error('Error al guardar producto:', this.error);
       },
     });
   }
@@ -97,4 +116,3 @@ export class ProductsComponent implements OnInit {
     });
   }
 }
-
