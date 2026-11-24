@@ -1,0 +1,15 @@
+<section>
+  <div class="mb-7"><p class="text-xs font-bold uppercase tracking-[.16em] text-brand">Registro</p><h1 class="mt-1 text-3xl font-extrabold tracking-tight text-ink">Historial de ventas</h1><p class="mt-2 text-sm text-slate-500">Consulta los cobros registrados en el sistema.</p></div>
+  <div *ngIf="error" class="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{{ error }}</div>
+  <section class="card overflow-hidden">
+    <div class="flex items-center justify-between p-5"><div><h2 class="font-extrabold">Transacciones</h2><p class="mt-1 text-xs text-slate-500">{{ sales.length }} ventas recientes</p></div><span class="rounded-full bg-brand-soft px-3 py-1.5 text-xs font-bold text-brand">{{ sales.length }} ventas</span></div>
+    <div class="overflow-x-auto"><table class="w-full min-w-[800px] text-left text-sm">
+      <thead><tr class="table-head"><th class="px-5 py-3">Fecha y hora</th><th class="px-5 py-3">Vendedor</th><th class="px-5 py-3">Detalle</th><th class="px-5 py-3">Pago</th><th class="px-5 py-3 text-right">Total</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let sale of sales"><td class="table-cell text-slate-600">{{ sale.created_at | date:'dd/MM/yyyy, HH:mm' }}</td><td class="table-cell font-semibold">{{ sale.seller_name }}</td><td class="table-cell"><details class="group"><summary class="cursor-pointer text-xs font-bold text-brand">Ver {{ sale.items.length }} artículos</summary><div class="mt-2 space-y-1 text-xs text-slate-500"><p *ngFor="let item of sale.items">{{ item.quantity }} × {{ item.product_name }} ({{ item.sku }})</p></div></details></td><td class="table-cell"><span class="status-pill status-ok">{{ sale.payment_method | uppercase }}</span><p *ngIf="sale.change_due > 0" class="mt-1 text-[10px] text-slate-400">Vuelto {{ sale.change_due | currency:'PEN':'symbol':'1.2-2' }}</p></td><td class="table-cell text-right font-extrabold">{{ sale.total | currency:'PEN':'symbol':'1.2-2' }}</td></tr>
+        <tr *ngIf="!sales.length"><td colspan="5" class="px-5 py-14 text-center text-sm text-slate-400">No hay ventas registradas todavía.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+</section>
+

@@ -1,0 +1,29 @@
+# Secrets
+.env
+backend/.env
+frontend/.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.venv/
+venv/
+backend/.venv/
+.pytest_cache/
+.mypy_cache/
+
+# Angular / Node
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+.angular/
+npm-debug.log*
+*.zip
+
+# Editors and OS
+.DS_Store
+.vscode/
+.idea/

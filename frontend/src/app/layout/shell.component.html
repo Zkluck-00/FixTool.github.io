@@ -1,0 +1,45 @@
+<div class="min-h-screen bg-paper lg:grid lg:grid-cols-[250px_minmax(0,1fr)]">
+  <aside class="hidden min-h-screen flex-col bg-ink px-4 py-6 text-white lg:flex">
+    <a routerLink="/app" class="mb-10 flex items-center gap-3 px-3">
+      <span class="grid h-10 w-10 place-items-center rounded-xl bg-brand text-sm font-black">FT</span>
+      <span><span class="block text-lg font-extrabold tracking-tight">FixTool</span><span class="text-[10px] uppercase tracking-[.18em] text-slate-400">Inventario & ventas</span></span>
+    </a>
+    <p class="px-3 pb-3 text-[10px] font-bold uppercase tracking-[.18em] text-slate-500">Menú principal</p>
+    <nav class="space-y-1">
+      <a *ngIf="auth.isAdmin" routerLink="/app/dashboard" routerLinkActive="bg-white/10 text-white" class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-300 hover:bg-white/5">▦ <span>Panel general</span></a>
+      <a *ngIf="auth.isAdmin" routerLink="/app/products" routerLinkActive="bg-white/10 text-white" class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-300 hover:bg-white/5">▤ <span>Productos</span></a>
+      <a *ngIf="auth.isAdmin" routerLink="/app/team" routerLinkActive="bg-white/10 text-white" class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-300 hover:bg-white/5">♙ <span>Personal</span></a>
+      <a routerLink="/app/pos" routerLinkActive="bg-white/10 text-white" class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-300 hover:bg-white/5">＋ <span>Nueva venta</span></a>
+      <a *ngIf="auth.isAdmin" routerLink="/app/history" routerLinkActive="bg-white/10 text-white" class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-300 hover:bg-white/5">◷ <span>Historial de ventas</span></a>
+    </nav>
+    <div class="mt-auto rounded-2xl border border-white/10 bg-white/5 p-4">
+      <div class="mb-2 h-1.5 w-9 rounded-full bg-copper"></div>
+      <p class="text-xs font-semibold">FixTool</p><p class="mt-1 text-[11px] leading-5 text-slate-400">Inventario actualizado con cada venta.</p>
+    </div>
+  </aside>
+  <div class="min-w-0">
+    <header class="sticky top-0 z-20 flex h-[72px] items-center justify-between border-b border-line bg-white/95 px-4 backdrop-blur sm:px-7">
+      <div class="flex items-center gap-3">
+        <button class="grid h-10 w-10 place-items-center rounded-xl bg-ink text-sm font-black text-white lg:hidden" (click)="menuOpen = !menuOpen">FT</button>
+        <span class="font-extrabold tracking-tight text-ink lg:hidden">FixTool</span>
+        <span class="hidden text-sm text-slate-500 sm:inline">Sistema de inventario y venta</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="hidden text-right sm:block"><p class="text-sm font-bold text-ink">{{ auth.fullName }}</p><p class="text-[11px] text-slate-500">{{ auth.isAdmin ? 'Administrador' : 'Vendedor' }}</p></div>
+        <div class="grid h-10 w-10 place-items-center rounded-full bg-brand-soft text-sm font-extrabold text-brand">{{ auth.fullName.charAt(0).toUpperCase() }}</div>
+        <button class="btn-secondary !px-3 !py-2 text-xs" (click)="logout()">Salir</button>
+      </div>
+    </header>
+    <div *ngIf="menuOpen" class="absolute z-30 w-full border-b border-line bg-white px-4 py-3 shadow-lg lg:hidden">
+      <nav class="grid grid-cols-2 gap-2">
+        <a *ngIf="auth.isAdmin" routerLink="/app/dashboard" (click)="menuOpen=false" class="rounded-lg px-3 py-2 text-sm hover:bg-paper">Panel general</a>
+        <a *ngIf="auth.isAdmin" routerLink="/app/products" (click)="menuOpen=false" class="rounded-lg px-3 py-2 text-sm hover:bg-paper">Productos</a>
+        <a *ngIf="auth.isAdmin" routerLink="/app/team" (click)="menuOpen=false" class="rounded-lg px-3 py-2 text-sm hover:bg-paper">Personal</a>
+        <a routerLink="/app/pos" (click)="menuOpen=false" class="rounded-lg px-3 py-2 text-sm hover:bg-paper">Nueva venta</a>
+        <a *ngIf="auth.isAdmin" routerLink="/app/history" (click)="menuOpen=false" class="rounded-lg px-3 py-2 text-sm hover:bg-paper">Historial</a>
+      </nav>
+    </div>
+    <main class="mx-auto max-w-[1500px] p-4 sm:p-7 lg:p-9"><router-outlet /></main>
+  </div>
+</div>
+
