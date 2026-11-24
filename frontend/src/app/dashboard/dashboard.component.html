@@ -1,0 +1,24 @@
+<section>
+  <div class="mb-7 flex flex-wrap items-end justify-between gap-3">
+    <div><p class="text-xs font-bold uppercase tracking-[.16em] text-brand">Resumen del negocio</p><h1 class="mt-1 text-3xl font-extrabold tracking-tight text-ink">Panel general</h1><p class="mt-2 text-sm text-slate-500">Vista rápida de inventario y ventas.</p></div>
+    <span class="rounded-full bg-white px-3 py-2 text-xs font-semibold text-slate-500 shadow-sm">{{ today | date:'EEEE, d MMMM' }}</span>
+  </div>
+  <div *ngIf="error" class="mb-5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{{ error }}</div>
+  <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <article class="card p-5"><div class="flex items-center justify-between"><span class="text-sm font-semibold text-slate-500">Productos activos</span><span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-soft text-brand">▤</span></div><p class="mt-5 text-3xl font-extrabold">{{ summary?.active_products ?? '—' }}</p><p class="mt-1 text-xs text-slate-400">En el catálogo</p></article>
+    <article class="card p-5"><div class="flex items-center justify-between"><span class="text-sm font-semibold text-slate-500">Stock por reponer</span><span class="grid h-10 w-10 place-items-center rounded-xl bg-orange-50 text-orange-600">!</span></div><p class="mt-5 text-3xl font-extrabold">{{ summary?.low_stock_products ?? '—' }}</p><p class="mt-1 text-xs text-slate-400">En o debajo del mínimo</p></article>
+    <article class="card p-5"><div class="flex items-center justify-between"><span class="text-sm font-semibold text-slate-500">Ventas de hoy</span><span class="grid h-10 w-10 place-items-center rounded-xl bg-sky-50 text-sky-700">↗</span></div><p class="mt-5 text-3xl font-extrabold">{{ summary?.sales_today ?? '—' }}</p><p class="mt-1 text-xs text-slate-400">Transacciones registradas</p></article>
+    <article class="card bg-ink p-5 text-white"><div class="flex items-center justify-between"><span class="text-sm font-semibold text-slate-300">Ingresos de hoy</span><span class="grid h-10 w-10 place-items-center rounded-xl bg-white/10 text-copper">S/</span></div><p class="mt-5 text-3xl font-extrabold">{{ (summary?.revenue_today ?? 0) | currency:'PEN':'symbol':'1.2-2' }}</p><p class="mt-1 text-xs text-slate-400">Total vendido</p></article>
+  </div>
+  <section class="card mt-7 overflow-hidden">
+    <div class="flex items-center justify-between px-5 py-5 sm:px-6"><div><h2 class="font-extrabold">Ventas recientes</h2><p class="mt-1 text-xs text-slate-500">Últimas transacciones registradas</p></div><span class="rounded-full bg-paper px-3 py-1.5 text-xs font-semibold text-slate-500">{{ summary?.recent_sales?.length ?? 0 }} registros</span></div>
+    <div class="overflow-x-auto">
+      <table class="w-full min-w-[640px] text-left text-sm"><thead><tr class="table-head"><th class="px-5 py-3">Fecha</th><th class="px-5 py-3">Vendedor</th><th class="px-5 py-3">Productos</th><th class="px-5 py-3">Pago</th><th class="px-5 py-3 text-right">Total</th></tr></thead>
+        <tbody><tr *ngFor="let sale of summary?.recent_sales"><td class="table-cell text-slate-600">{{ sale.created_at | date:'dd/MM/yy, HH:mm' }}</td><td class="table-cell font-semibold">{{ sale.seller_name }}</td><td class="table-cell text-slate-600">{{ sale.items.length }} artículos</td><td class="table-cell"><span class="status-pill status-ok">{{ sale.payment_method | uppercase }}</span></td><td class="table-cell text-right font-bold">{{ sale.total | currency:'PEN':'symbol':'1.2-2' }}</td></tr>
+          <tr *ngIf="!summary?.recent_sales?.length"><td colspan="5" class="px-5 py-12 text-center text-sm text-slate-400">Todavía no hay ventas registradas.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
+

@@ -1,0 +1,23 @@
+<section>
+  <div class="mb-7"><p class="text-xs font-bold uppercase tracking-[.16em] text-brand">Administración</p><h1 class="mt-1 text-3xl font-extrabold tracking-tight text-ink">Personal</h1><p class="mt-2 text-sm text-slate-500">Crea cuentas para que el equipo pueda registrar ventas.</p></div>
+  <div *ngIf="message" class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{{ message }}</div>
+  <div *ngIf="error" class="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{{ error }}</div>
+  <div class="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+    <section class="card overflow-hidden">
+      <div class="flex items-center justify-between px-5 py-5"><div><h2 class="font-extrabold">Cuentas registradas</h2><p class="mt-1 text-xs text-slate-500">{{ users.length }} usuarios del sistema</p></div><span class="rounded-full bg-brand-soft px-3 py-1.5 text-xs font-bold text-brand">{{ users.length }} cuentas</span></div>
+      <div class="overflow-x-auto"><table class="w-full min-w-[520px] text-left text-sm"><thead><tr class="table-head"><th class="px-5 py-3">Nombre</th><th class="px-5 py-3">Usuario</th><th class="px-5 py-3">Rol</th><th class="px-5 py-3">Estado</th></tr></thead><tbody>
+        <tr *ngFor="let user of users"><td class="table-cell font-semibold">{{ user.full_name }}</td><td class="table-cell font-mono text-xs text-slate-500">{{ user.username }}</td><td class="table-cell"><span class="status-pill" [ngClass]="user.role === 'admin' ? 'status-low' : 'status-ok'">{{ user.role === 'admin' ? 'Administrador' : 'Vendedor' }}</span></td><td class="table-cell"><span class="status-pill" [ngClass]="user.active ? 'status-ok' : 'status-off'">{{ user.active ? 'Activo' : 'Inactivo' }}</span></td></tr>
+        <tr *ngIf="!users.length"><td colspan="4" class="px-5 py-12 text-center text-sm text-slate-400">No hay cuentas para mostrar.</td></tr>
+      </tbody></table></div>
+    </section>
+    <aside class="card p-5 sm:p-6"><div class="mb-5"><p class="text-xs font-bold uppercase tracking-[.15em] text-brand">Nuevo acceso</p><h2 class="mt-1 text-xl font-extrabold">Crear vendedor</h2><p class="mt-2 text-xs leading-5 text-slate-500">El vendedor podrá consultar productos, registrar pagos y ver sus ventas.</p></div>
+      <form class="space-y-4" [formGroup]="form" (ngSubmit)="create()" novalidate>
+        <div><label class="field-label" for="seller-name">Nombre completo *</label><input id="seller-name" class="field" formControlName="full_name" maxlength="120" placeholder="Nombre del trabajador"><p *ngIf="form.controls.full_name.touched && form.controls.full_name.invalid" class="mt-1 text-xs text-rose-600">Ingresa un nombre válido.</p></div>
+        <div><label class="field-label" for="seller-user">Nombre de usuario *</label><input id="seller-user" class="field" formControlName="username" maxlength="50" placeholder="Ej. vendedor01"><p *ngIf="form.controls.username.touched && form.controls.username.invalid" class="mt-1 text-xs text-rose-600">3-50 caracteres: letras, números, punto, guion o guion bajo.</p></div>
+        <div><label class="field-label" for="seller-password">Contraseña inicial *</label><input id="seller-password" class="field" type="password" formControlName="password" minlength="10" maxlength="128" placeholder="Mínimo 10 caracteres"><p *ngIf="form.controls.password.touched && form.controls.password.invalid" class="mt-1 text-xs text-rose-600">Usa una contraseña de al menos 10 caracteres.</p></div>
+        <button class="btn-primary w-full" type="submit" [disabled]="saving">{{ saving ? 'Creando cuenta…' : 'Crear cuenta de vendedor' }}</button>
+      </form>
+    </aside>
+  </div>
+</section>
+
