@@ -1,9 +1,10 @@
+import logging
 from typing import Annotated
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import or_, select
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -11,7 +12,43 @@ from app.dependencies import get_current_user, require_admin
 from app.models import Product, User
 from app.schemas import ProductCatalogOut, ProductCreate, ProductOut
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/products", tags=["Productos"])
+
+
+def _commit_product(db: Session) -> None:
+    """Commit product changes and translate database errors into HTTP errors."""
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        sqlstate = getattr(exc.orig, "sqlstate", None)
+        constraint = getattr(getattr(exc.orig, "diag", None), "constraint_name", None)
+        logger.warning("Error de integridad en productos: SQLSTATE=%s, constraint=%s", sqlstate, constraint)
+
+        if sqlstate == "23505":
+            detail = (
+                "El código SKU ya está registrado."
+                if constraint in {"ix_products_sku", "products_sku_key"}
+                else "El producto incumple una restricción de unicidad."
+            )
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=detail) from exc
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El producto incumple una restricción de la base de datos.",
+        ) from exc
+    except SQLAlchemyError as exc:
+        db.rollback()
+        logger.error(
+            "Error al guardar producto: %s, SQLSTATE=%s",
+            type(exc).__name__,
+            getattr(getattr(exc, "orig", None), "sqlstate", None),
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error de base de datos al guardar el producto.",
+        ) from exc
 
 
 @router.get("", response_model=list[ProductOut])
@@ -54,11 +91,7 @@ def create_product(
 ) -> Product:
     product = Product(id=uuid4(), **payload.model_dump())
     db.add(product)
-    try:
-        db.commit()
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="El código SKU ya está registrado.")
+    _commit_product(db)
     db.refresh(product)
     return product
 
@@ -75,11 +108,7 @@ def update_product(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado.")
     for key, value in payload.model_dump().items():
         setattr(product, key, value)
-    try:
-        db.commit()
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="El código SKU ya está registrado.")
+    _commit_product(db)
     db.refresh(product)
     return product
 
@@ -94,5 +123,4 @@ def archive_product(
     if product is None or not product.active:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado.")
     product.active = False
-    db.commit()
-
+    _commit_product(db)
